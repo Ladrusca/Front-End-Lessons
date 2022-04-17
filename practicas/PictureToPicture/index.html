@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PictureToPicture</title>
+</head>
+<body>
+    <div id="container">
+        <!--Titulo-->
+        <div class="title">Picture To Picture</div>
+        
+        <!--Timer-->
+        <div id="containerTimer">
+            <span>
+                Tiempo: 
+                <span id="timer">0</span>
+            </span>
+            <button id="reset">Reset</button>
+        </div>
+
+        <!--Fotos-->
+        <button class="picture" value="1" style="background-image: url('img/cat1.png');"></button>
+        <button class="picture" value="2" style="background-image: url('img/cat2.jpg');"></button>
+        <button class="picture" value="3" style="background-image: url('img/cat3.webp');"></button>
+        <button class="picture" value="2" style="background-image: url('img/cat2.jpg');"></button>
+        <button class="picture" value="4" style="background-image: url('img/cat4.webp');"></button>
+        <button class="picture" value="6" style="background-image: url('img/cat6.webp');"></button>
+        <button class="picture" value="3" style="background-image: url('img/cat3.webp');"></button>
+        <button class="picture" value="1" style="background-image: url('img/cat1.png');"></button>
+        <button class="picture" value="5" style="background-image: url('img/cat5.jpg');"></button>
+        <button class="picture" value="4" style="background-image: url('img/cat4.webp');"></button>
+        <button class="picture" value="6" style="background-image: url('img/cat6.webp');"></button>
+        <button class="picture" value="5" style="background-image: url('img/cat5.jpg');"></button>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+        
+        //Variable Global que nos servira para almacenar la primer foto que seleccionemos
+        let primer_foto = null
+        let segundos = 0
+        let pares_seleccionados = 0
+        let inicio_juego = true
+
+        let timer = null
+
+        //Aqui traemos una lista de todos los elementos con la clase picture y les decimos que al hacer click en cualquiera de ellos 
+        //debe llamarse a la funcion check pasandole el elemento como parametro.
+        $('.picture').on('click',function(){check($(this))})
+
+
+        $('#reset').on('click', function(){manejador_tiempo(true)})
+
+        //funcion que checkea la igualdad entre fotos
+        function check(foto){
+
+            console.log(foto)
+
+            //Se evalua si hay una primera foto seleccionada
+            if(!primer_foto){
+                
+
+                //Si no hay una primera foto seleccionada, se asigna a la variable primer_foto el elemento button pasado como parametro
+                primer_foto = foto
+                primer_foto.prop('disabled', true)
+                primer_foto.addClass("selected")
+
+                console.log('primera seleccion')
+
+            }
+            //Si la primera condicion no se cumple, entramos en el else
+            else{
+
+                //Preguntamos si el value de la primera foto selecciona y el de la segunda son iguales
+                if(primer_foto.val() == foto.val()){
+                    
+                    console.log('iguales')
+
+                    // Si los values coinciden, desabilitamos los botones para que no puedan ser clickeados nuevamente. 
+                    //Les agregamos la clase selected-ok para que veamos visualmente que coinciden.
+                    primer_foto.addClass("selected-ok")
+                    primer_foto.prop('disabled', true)
+
+                    foto.addClass("selected-ok")
+                    foto.prop('disabled', true)
+
+                    pares_seleccionados++
+                }
+                else{
+
+                    //Aqui llegamos si los values no eran iguales, en este caso se limpia la variable primer_foto y se le quita la clase selected
+                    console.log('distintos')
+                    primer_foto.removeClass("selected")
+                    primer_foto.prop('disabled', false)
+                }
+
+                primer_foto = null
+            }
+
+            //Se llama al manejador de tiempo para analizar el estadio actual
+            manejador_tiempo()
+        }
+
+        //No enfocarse en esta funcion.
+        function manejador_tiempo(reset=false){
+
+            if(reset){
+
+                console.log('reseteado!')
+
+                segundos = 0
+                pares_seleccionados = 0
+                inicio_juego = true
+                
+                $('.picture').removeClass('selected selected-ok')
+                $('.picture').prop('disabled', false)
+
+                window.clearInterval(timer)
+            }
+
+            //Se inicia el contador si inicio_juego es true
+            if(inicio_juego){
+
+                console.log('inicio de juego!')
+                
+                inicio_juego = false
+
+                timer = window.setInterval( () =>{ $('#timer').html(segundos); segundos++;}, 1000)
+
+            }
+            else{
+
+                if(pares_seleccionados == ($('.picture').length / 2)){
+
+
+                    console.log('termino el juego!')
+
+                    window.clearInterval(timer)
+                }
+            }
+        }
+
+    </script>
+
+    <style>
+
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #container{
+            width: 80vh;
+            height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .picture{
+            width: 25%;
+            height: 25%;
+            position: relative;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            border: 1px solid green;
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .picture:hover{
+            box-shadow: 0px 0px 37px -9px rgba(0, 206, 0, 0.603);
+        }
+        .title{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: green;
+            font-size: 24px;
+            width: 100%;
+            height: 5vh;
+        }
+
+        .selected:before{
+            background-color: rgba(0, 0, 0, 0.5);
+            content: '';
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+
+        .selected-ok:before{            
+            background: url('img/ok.png'), rgba(0, 0, 0, 0.5);    
+            background-repeat: no-repeat;
+            background-size: 50%;
+            background-position: center center;
+            content: '';
+            display: block;
+            height: 100%;
+            width: 100%;
+
+        }
+        #containerTimer{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 40px;
+            width: 100%;
+            padding: 0 25% 0 25%;
+            height: 5vh;
+        }
+        #reset{
+            font-size: 40px;
+        }
+
+    </style>
+</body>
+</html>
